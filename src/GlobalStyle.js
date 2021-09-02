@@ -4,10 +4,10 @@ export const GlobalStyle = createGlobalStyle`
   :root {
     --maxWidth: 1280px; 
     --highLightColor: #fff;
-    --primaryColor: #000033;
-    --backgroundColor: #00004d; 
-    --accentColor: #cc00cc;
-    --buttonColor: #0000ff;
+    --primaryColor: #212332;
+    --backgroundColor: #2A2D3E; 
+    --accentColor: #E040FB;
+    --buttonColor: #448AFF;
     --fontSuperBig: 2.5rem;
     --fontBig: 1.5rem;
     --fontMed: 1.2rem;
