@@ -1,25 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+// Style
+import { GlobalStyle } from './GlobalStyle';
+// Routing
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// Header
+import Header from './components/Header/header';
+import Home from './components/Home';
+// Hook
+import { useLogInState } from './hooks/useLogInState';
 
-function App() {
+const App = () => {
+  //the state concering the user is logged in or not will be set in the parent component of navbar and body. So they both share the same state in terms of user loggin
+  const { state: user, LogIn, LogOut } = useLogInState();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Header user={user} LogIn={LogIn} LogOut={LogOut}/>
+      <Routes>
+        <Route path="/" element={<Home user={user}/>} />
+      </Routes>
+      <GlobalStyle />
+    </Router>
   );
-}
+};
 
 export default App;
