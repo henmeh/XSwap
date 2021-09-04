@@ -10,21 +10,23 @@ const Wrapper = styled.div`
   grid-column-gap: 10px;
   align-items: center;
   padding: 5px 5px;
-  
-  @media (max-width: 768px) {
+
+  @media (max-width: 1250px) {
     grid-template-columns: 1fr;
     grid-row-gap: 10px;
-  
   }
 `;
 
 const MyXSwaps = ({ user }) => {
-  return (     
-    <Wrapper> 
-     <JobList chain={0}/>
-     <JobList chain={137}/>
-  </Wrapper>
-  );
+  if (user) {
+    return (
+      <Wrapper>
+        <JobList chain={0} /> <JobList chain={137} />
+      </Wrapper>
+    );
+  } else {
+    return <div style={{ color: "white" }}>Log dich ein Alter</div>;
+  }
 };
 
 export default MyXSwaps;

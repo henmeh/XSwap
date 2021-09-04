@@ -13,6 +13,7 @@ export const Wrapper = styled.div`
   }
 
   table {
+    width: 100%;
     margin: 0 auto;
     border-collapse: collapse;
     background-color: var(--primaryColor);

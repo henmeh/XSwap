@@ -9,25 +9,25 @@ import { Wrapper } from "./jobList.styles";
 const JobList = ({ chain }) => {
   const [jobData, setJobData] = useState([]);
 
-  const componentDidMount = async () => {
+  const componentDidMount = async (_chain) => {
     let jobs = [];
-    if (chain === 0) {
+    if (_chain === 0) {
       jobs = await getMyEthTransactions();
-    } else if (chain === 137) {
+    } else if (_chain === 137) {
       jobs = await getMyPolygonTransactions();
     }
     setJobData(jobs);
-    console.log(jobData);
   };
 
   useEffect(() => {
     //if(ethJobData.length === 0) {
-    componentDidMount();
+    componentDidMount(chain);
     //}
-  }, []);
+  }, [chain]);
 
   return (
     <Wrapper>
+     <h2>{chain === 0 ? "Follow your XSwaps on Ehtereum" : "Follow your XSwaps on Polygon"}</h2>
       <table>
         <thead>
           <tr>
@@ -38,7 +38,7 @@ const JobList = ({ chain }) => {
             <th>Token Amount</th>
             <th>TokenSymbol</th>
             <th>Status</th>
-            {chain === 137 ? <th>Activity</th> : null}
+            {chain === 137 && <th>Activity</th>}
           </tr>
         </thead>
         <tbody>
@@ -67,6 +67,7 @@ const JobList = ({ chain }) => {
                   status={status}
                   activity={activity}
                   activityId={activityId}
+                  chain={chain}
                 />
               )
             )}

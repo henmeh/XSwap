@@ -7,9 +7,17 @@ export const Wrapper = styled.div`
   
   #link-side1 {
     margin-right: 25px;
+    color: var(--highLightColor);
   }
   #link-side2 {
     margin-left: 25px;
+    color: var(--highLightColor);
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 `;
 

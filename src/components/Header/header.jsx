@@ -8,10 +8,13 @@ const Header = ({ user, LogIn, LogOut }) => {
   return (
     <Wrapper>
       <h1>XSwap</h1>
-      <NormalButton
-        text={user ? "LogOut" : "LogIn"}
-        onClick={user ? LogOut : LogIn}
-      />
+      <div>
+        {user ? `Logged in with: ${user.attributes.ethAddress}` : null}
+        <NormalButton
+          text={user ? "LogOut" : "LogIn"}
+          onClick={user ? LogOut : LogIn}
+        />
+      </div>
     </Wrapper>
   );
 };

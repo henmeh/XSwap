@@ -3,7 +3,9 @@ import styled from "styled-components";
 export const Wrapper = styled.div`
   //background: var(--backgroundColor);
   overflow-x: auto;
-  height: 500px;
+  height: 450px;
+  text-align: center;
+  color: var(--highLightColor);
 
   thead {
     color: var(--accentColor);
@@ -13,6 +15,7 @@ export const Wrapper = styled.div`
   }
 
   table {
+    width: 100%;
     margin: 0 auto;
     border-collapse: collapse;
     background-color: var(--primaryColor);

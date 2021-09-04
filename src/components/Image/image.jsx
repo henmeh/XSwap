@@ -2,9 +2,9 @@ import React from "react";
 // Style
 import { Wrapper } from "./Image.styles";
 
-const Image = ({ image, alt, height, marginRight }) => (
+const Image = ({ image, alt, height, width, marginRight }) => (
   <>
-    <Wrapper src={image} alt={alt} height={height} marginRight={marginRight} />
+    <Wrapper src={image} alt={alt} height={height} width={width} marginRight={marginRight} />
   </>
 );
 
