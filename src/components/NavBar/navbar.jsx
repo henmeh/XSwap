@@ -1,17 +1,15 @@
 import React from "react";
 // Styles
-import { Wrapper, Content } from "./navBar.styles";
+import { Wrapper } from "./navBar.styles";
 // Components
 import { Link } from "react-router-dom";
 
 const NavBar = () => {
   return (
-    <Wrapper>
-      <Content>
-        <a><Link to="/">Seite 1</Link></a>
-        <a><Link to="/">Seite 2</Link></a>
-      </Content>
-    </Wrapper>
+      <Wrapper>
+        <Link id="link-side1" to="/"><span>MyBalances</span></Link>
+        <Link id="link-side2" to="/myXSwaps">My XSwaps</Link>
+      </Wrapper>
   );
 };
 

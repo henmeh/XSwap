@@ -1,35 +1,36 @@
 import React from "react";
-import PropTypes from "prop-types";
-import styled from "styled-components";
+// Styles
+//import { Wrapper } from "./Balance.style";
+//import PropTypes from "prop-types";
+//import Image from "../Image/image";
 
-const Td = styled.td`
-  width: 15vh;
-`;
+const formatBalance = (balance, decimals) =>
+  (balance / Math.pow(10, decimals)).toFixed(8);
+const valueCalculator = (balance, decimals, price) =>
+  ((balance / Math.pow(10, decimals)) * price).toFixed(2);
 
-const formatBalance = (balance, decimals) => (balance / Math.pow(10, decimals)).toFixed(3);
+const Job = ({
+  hash,
+  method,
+  toAddress,
+  value,
+  tokenAmount,
+  tokenDecimals,
+  tokenSymbol,
+  status,
+  activity,
+  activityId,
+}) => (
+  <tr>
+    <td> {hash} </td>
+    <td> {method}</td>
+    <td> {toAddress}</td>
+    <td> {value}</td>
+    <td> {tokenAmount} </td>
+    <td> {tokenSymbol} </td>
+    <td> {status} </td>
+    <td> {activity} </td>
+  </tr>
+);
 
-export default function Job(props) {
-  return (
-    <tr>
-      <Td>{(props.hash).substring(0, 5) + "..." + (props.hash).substring((props.hash).length, (props.hash).length-5)}</Td>
-      <Td>{props.method}</Td>
-      <Td>{(props.toAddress).substring(0, 5) + "..." + (props.toAddress).substring((props.toAddress).length, (props.toAddress).length-5)}</Td>
-      <Td>{props.ether ? formatBalance(props.ether, 18) : "-"}</Td>
-      <Td>{props.tokenAmount ? formatBalance(props.tokenAmount, props.tokenDecimals) : "-"}</Td>
-      <Td>{props.tokenSymbol ? props.tokenSymbol : "-"}</Td>
-      <Td>{props.status ? "confirmed" : "pending"}</Td>
-      <Td>{props.activity ? <button>ToDo</button> : "-"}</Td>
-    </tr>
-  );
-}
-
-/*Job.propTypes = {
-  hash: PropTypes.string.isRequired,
-  method: PropTypes.string.isRequired,
-  toAddress: PropTypes.string.isRequired,
-  ether: PropTypes.string.isRequired,
-  tokenAmount: PropTypes.isRequired,
-  tokenSymbol: PropTypes.isRequired,
-  status: PropTypes.bool.isRequired,
-  activity: PropTypes.string.isRequired,  
-};*/
+export default Job;

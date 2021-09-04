@@ -1,10 +1,11 @@
 import React from "react";
+// Style
+import { Wrapper } from "./Image.styles";
 
-export default function MyImage(props) {
+const Image = ({ image, alt, height, marginRight }) => (
+  <>
+    <Wrapper src={image} alt={alt} height={height} marginRight={marginRight} />
+  </>
+);
 
-  return (
-    <>
-      <img src={props.image} alt={props.alt} style={{height: props.height, marginRight:props.marginRight}}/>
-    </>
-  );
-}
+export default Image;
