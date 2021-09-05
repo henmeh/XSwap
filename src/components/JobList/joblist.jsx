@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 // Components
-import Job from '../Job/job';
+import Job from "../Job/job";
 // Functions
 import { getMyEthTransactions, getMyPolygonTransactions } from "../../functions/functions";
 // Styling
-import { Wrapper } from "./jobList.styles";
+import { Wrapper, Content } from "./jobList.styles";
 
 const JobList = ({ chain }) => {
   const [jobData, setJobData] = useState([]);
@@ -27,21 +27,26 @@ const JobList = ({ chain }) => {
 
   return (
     <Wrapper>
-     <h2>{chain === 0 ? "Follow your XSwaps on Ehtereum" : "Follow your XSwaps on Polygon"}</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Tx Hash</th>
-            <th>Method</th>
-            <th>To Address</th>
-            <th>Ether</th>
-            <th>Token Amount</th>
-            <th>TokenSymbol</th>
-            <th>Status</th>
-            {chain === 137 && <th>Activity</th>}
-          </tr>
-        </thead>
-        <tbody>
+      <h2>
+        {chain === 0
+          ? "Follow your XSwaps on Ehtereum"
+          : "Follow your XSwaps on Polygon"}
+      </h2>
+      <Content>
+        <table>
+          <thead>
+            <tr>
+              <th>Tx Hash</th>
+              <th>Method</th>
+              <th>To Address</th>
+              <th>Ether</th>
+              <th>Token Amount</th>
+              <th>TokenSymbol</th>
+              <th>Status</th>
+              {chain === 137 && <th>Activity</th>}
+            </tr>
+          </thead>
+          <tbody>
             {jobData.map(
               ({
                 hash,
@@ -72,7 +77,8 @@ const JobList = ({ chain }) => {
               )
             )}
           </tbody>
-      </table>
+        </table>
+      </Content>
     </Wrapper>
   );
 };
