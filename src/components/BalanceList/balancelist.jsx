@@ -1,24 +1,9 @@
-import React, { useState, useEffect } from "react";
-// Functions
-import { getMyBalances } from "../../functions/functions";
+import React from "react";
 // Styling
 import { Wrapper } from "./balanceList.styles";
 import Balance from "../Balance/balance";
 
-const BalanceList = () => {
-  const [balanceData, setBalanceData] = useState([]);
-
-  const componentDidMount = async () => {
-    let balances = await getMyBalances();
-    setBalanceData(balances);
-  };
-
-  useEffect(() => {
-    if(balanceData.length === 0) {
-      componentDidMount();
-    }
-  });
-
+const BalanceList = ({ balanceData }) => {
   return (
     <Wrapper>
       <table>
@@ -52,7 +37,7 @@ const BalanceList = () => {
                   image={image}
                   name={name}
                   symbol={symbol}
-                  usdPrice={parseFloat(usdPrice)}
+                  usdPrice={usdPrice}
                 />
               )
             )}

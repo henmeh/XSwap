@@ -7,20 +7,20 @@ import Image from "../Image/image";
 const formatBalance = (balance, decimals) => (balance / Math.pow(10, decimals)).toFixed(8);
 const valueCalculator = (balance, decimals, price) => ((balance / Math.pow(10, decimals)) * price).toFixed(2);
 
-export default function Balance(props) {
+export default function Balance({ image, name, symbol, balance, decimals, chain, usdPrice }) {
   return (
     <Wrapper>
         <td>
-          <Image image={props.image} alt="-" height={25} />
+          <Image image={image} alt="-" height={25} />
         </td>
-        <td>{props.name}</td>
-        <td>{props.symbol}</td>
-        <td>{formatBalance(props.balance, props.decimals)}</td>
+        <td>{name}</td>
+        <td>{symbol}</td>
+        <td>{formatBalance(balance, decimals)}</td>
         <td>
-          <Image image={props.chain} alt="-" height={25} />
+          <Image image={chain} alt="-" height={25} />
         </td>
         <td>
-          {valueCalculator(props.balance, props.decimals, props.usdPrice)}
+          {valueCalculator(balance, decimals, usdPrice)}
         </td>
     </Wrapper>
   );

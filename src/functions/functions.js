@@ -53,8 +53,6 @@ module.exports = {
         const params = { address: _userAddress };
         const balances = await moralis.Cloud.run("getMyBalances", params);
 
-        console.log(balances);
-
         // Prepare for Fetching all the usdPrices in parallel await function
         let tokenPricePromises = [];
         // adding the native currencies from coingecko for eth
