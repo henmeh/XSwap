@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 // Styles
 import { Wrapper } from "./Swap.styles";
 import { makeStyles } from "@material-ui/core/styles";
@@ -36,14 +36,15 @@ const useStyles = makeStyles((theme) => ({
 export default function Swap() {
   const classes = useStyles();
 
-  const [ethToken, setEthToken] = React.useState([]);
-  const [polygonToken, setPolygonToken] = React.useState([]);
-  const [fromToken, setFromToken] = React.useState({});
-  const [toToken, setToToken] = React.useState({});
-  const [swapAmount, setSwapAmount] = React.useState();
-  const [fromChain, setFromChain] = React.useState();
-  const [toChain, setToChain] = React.useState();
-  const [status, setStatus] = React.useState();
+  const [ethToken, setEthToken] = useState([]);
+  const [polygonToken, setPolygonToken] = useState([]);
+  const [fromToken, setFromToken] = useState({});
+  const [toToken, setToToken] = useState({});
+  const [swapAmount, setSwapAmount] = useState();
+  const [slippage, setSlippage] = useState("0.01");
+  const [fromChain, setFromChain] = useState();
+  const [toChain, setToChain] = useState();
+  const [status, setStatus] = useState();
 
   //Chain indizes
   //Ethereum  = 1
@@ -74,8 +75,19 @@ export default function Swap() {
   }
 
   const swap = () => {
-    const swapAmountWei = Number(swapAmount) * Math.pow(10, Number(fromToken.decimals))
-    swapTokens(fromToken.address, toToken.address, swapAmountWei, fromChain, toChain, status);
+    console.log(fromToken);
+    console.log(toToken);
+    console.log(fromChain);
+    console.log(toChain);
+    console.log(swapAmount);
+    console.log(slippage);
+    console.log(status);
+    //const swapAmountWei = Number(swapAmount) * Math.pow(10, Number(fromToken.decimals))
+    //swapTokens(fromToken.address, toToken.address, swapAmountWei, fromChain, toChain, status);
+  }
+
+  const check = (value) => {
+    console.log(value);
   }
 
   return (
@@ -84,8 +96,19 @@ export default function Swap() {
         <TokenSelectButton title="Token on Ethereum" tokens={ethToken} chain={1} status={"new"} tokenChoice={handleFromTokenChoice}/>
         <TokenSelectButton title="Token on Polygon" tokens={polygonToken} chain={137} status={"new"} tokenChoice={handleFromTokenChoice}/>
       </div>
+      <div id="select-slippage" onChange={(event) => {setSlippage(event.target.value)}}>
+      Max Slippage: 
+      <input type="radio" id="0.1%" value="0.001" name="slippage"/>
+      <label >0.1%</label>
+      <input type="radio" id="0.5%" value="0.005" name="slippage"/>
+      <label >0.5%</label>
+      <input type="radio" id="1.00%" value="0.01" name="slippage" defaultChecked/>
+      <label >1.0%</label>
+      <input type="radio" id="3.00%" value="0.03" name="slippage"/>
+      <label >3.0%</label>      
+      </div>
       <div id="swapamount-input">
-        <Input type="number" placeholder="Input Swapamount" onChange={((event) => setSwapAmount(event.target.value))}/>
+      <input type="number" placeholder="Input Swapamount" onChange={((event) => setSwapAmount(event.target.value))}/>
       </div>
       <div id="swapbutton">
         <NormalButton text={"Swap"} onClick={swap} />
@@ -97,9 +120,7 @@ export default function Swap() {
       <div id="to-token-select">
         <TokenSelectButton title="Token on Ethereum" tokens={ethToken} chain={1} status={"new"} tokenChoice={handleToTokenChoice}/>
         <TokenSelectButton title="Token on Polygon" tokens={polygonToken} chain={137} status={"new"} tokenChoice={handleToTokenChoice}/>
-      </div>
-    
-    
+      </div>    
     </Wrapper>
   );
 }
