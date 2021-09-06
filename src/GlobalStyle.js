@@ -23,7 +23,7 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    background-color: var(--backgroundColor);
+    background-color: var(--backgroundColor, white);
 
     h1 {
       font-size: 3rem;

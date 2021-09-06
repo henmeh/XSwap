@@ -4,7 +4,7 @@ import Chart from "react-apexcharts";
 // Styles
 import { Wrapper } from "./donutChart.style";
 // Colors
-import { colors } from '../../helpers/colors';
+import { colors } from "../../helpers/colors";
 
 const DonutChart = ({ balanceData }) => {
   let balanceSeries = [];
@@ -23,8 +23,6 @@ const DonutChart = ({ balanceData }) => {
 
   const options = {
     labels: labels,
-    //width: 100,
-    //height: 500,
     stroke: {
       width: 0,
     },
@@ -34,7 +32,6 @@ const DonutChart = ({ balanceData }) => {
     colors: colors,
     fill: {
       type: "gradient",
-      //colors: colors,
     },
     legend: {
       position: "bottom",
@@ -59,7 +56,12 @@ const DonutChart = ({ balanceData }) => {
       <Wrapper>
         <h2>{`Total ${totalBalance.toFixed(2)} USD`}</h2>
         <div>
-          <Chart id="balance-chart" options={options} series={balanceSeries} type="donut" />
+          <Chart
+            id="balance-chart"
+            options={options}
+            series={balanceSeries}
+            type="donut"
+          />
         </div>
       </Wrapper>
     );

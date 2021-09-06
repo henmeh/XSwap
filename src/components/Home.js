@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 // Components
 import BalanceList from "./BalanceList/balancelist";
 import DonutChart from "./DonutChart/donutchart";
+import Swap from "./Swap/swap";
 import styled from "styled-components";
 // Functions
 import { getMyBalances } from "../functions/functions";
@@ -9,11 +10,16 @@ import { getMyBalances } from "../functions/functions";
 // Display as Grid
 const Wrapper = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 500px 1fr;
   grid-column-gap: 10px;
   align-items: center;
   justify-content: center;
   padding: 5px 5px;
+
+  @media (max-width: 1400px) {
+    grid-template-columns: 1fr 500px;
+    grid-row-gap: 10px;
+  }
 
   @media (max-width: 1000px) {
     grid-template-columns: 1fr;
@@ -55,6 +61,7 @@ const Home = ({ user }) => {
       <Wrapper>
         <BalanceList balanceData={balanceData} />
         <DonutChart balanceData={balanceData}/>
+        <Swap />
       </Wrapper>
     );
   } else {
