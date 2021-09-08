@@ -1,10 +1,10 @@
 const moralis = require("moralis");
 const tokenAddresses = require("./addresses.js");
 const axios = require("axios");
-const abi = require("./abi");
+const { erc20ABI } = require("../helpers/contractABI");
 const MaticPOSClient = require("@maticnetwork/maticjs").MaticPOSClient;
 const Matic = require("@maticnetwork/maticjs").default;
-const Web3 = require("web3");
+const web3 = require("web3");
 
 moralis.initialize("dOiVpAxnylme9VPx99olzmbyQzB4Jk2TgL0g1Y5A");
 moralis.serverURL = "https://kuuj059ugtmh.usemoralis.com:2053/server";
@@ -207,4 +207,84 @@ module.exports = {
       console.log(error);
     }
   },
+
+swapTokens: async function(_fromTokenAddress, _toTokenAddress, _swapAmount, _fromChain, _toChain, _slippage, _status) {
+  let _jobId;
+  // Check if status = new and store new Job in moralis DB
+  if(_status === "new") {
+    _jobId = await _storeJobData(_fromTokenAddress, _toTokenAddress, _swapAmount, _fromChain, _toChain, _slippage)
+  }
+  // If fromChain == toChain than direct Networkcheck and Swap
+  if(_fromChain === _toChain) {
+    // Check or the right network in Metamask
+    await _networkCheck(_toChain);
+    // Do the swap
+    await _doSwap(_jobId);
+    // Delete the Job after swapping
+    await _deleteJobById(_jobId);
+  }
+}
 };
+
+async function _doSwap(_jobId) {
+  const user = await moralis.User.current();
+  const _userAddress = user.attributes.ethAddress;
+
+  //find job by id
+  const params = { id: _jobId };
+  let job = await moralis.Cloud.run("getJobsById", params);
+  
+  //if an ERC20 token should be swapped than first approve 1inch to spend token
+  if (job.attributes.fromTokenAddress != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
+    window.ERC20TokencontractInstance = new window.web3.eth.Contract(erc20ABI, job.attributes.fromTokenAddress);
+    await window.ERC20TokencontractInstance.methods.approve("0x11111112542d85b3ef69ae05771c2dccff4faa26", job.attributes.amount).send({ from: _userAddress });
+  }
+  
+  let response = await fetch(`https://api.1inch.exchange/v3.0/${job.attributes.toChain}/swap?fromTokenAddress=${job.attributes.fromTokenAddress}&toTokenAddress=${job.attributes.toTokenAddress}&amount=${job.attributes.amount}&fromAddress=${_userAddress}&slippage=${job.attributes.slippage}`);
+
+  const swap = await response.json();
+  const send = await window.web3.eth.sendTransaction(swap.tx);
+
+  job.set("txHash", send.transactionHash);
+  job.set("status", "swapped");
+  job.set("amount", swap["toTokenAmount"]);
+  job.set("fromTokenAddress", job.attributes.toTokenAddress);
+  await job.save();
+  return ["swapped", swap["toTokenAmount"]];
+}
+
+async function _networkCheck(_networkId) {
+  let network = await window.web3.eth.net.getId();
+  if (network !== _networkId && network === 1) {
+    alert("Please Change Network in Metamask to Polygon and then press OK");
+  } else if (network !== _networkId && network === 137) {
+    alert("Please Change Network in Metamask to Ethereum and then press OK");
+  }
+}
+
+async function _storeJobData(_fromTokenAddress, _toTokenAddress, _amount, _fromChain, _toChain, _slippage) {
+  let user = await moralis.User.current();
+  const _userAddress = user.attributes.ethAddress;
+  const Jobs = moralis.Object.extend("Jobs");
+  const job = new Jobs();
+
+  job.set("user", _userAddress);
+  job.set("fromTokenAddress", _fromTokenAddress);
+  job.set("toTokenAddress", _toTokenAddress);
+  job.set("amount", _amount);
+  job.set("fromChain", _fromChain);
+  job.set("toChain", _toChain);
+  job.set("txHash", "");
+  job.set("status", "new");
+  job.set("slippage", _slippage);
+
+  await job.save();
+
+  return job.id;
+}
+
+async function _deleteJobById(_jobId) {
+  const params = { id: _jobId };
+  let job = await moralis.Cloud.run("getJobsById", params);
+  await job.destroy();
+}

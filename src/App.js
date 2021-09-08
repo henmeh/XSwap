@@ -3,11 +3,12 @@ import React from "react";
 import { GlobalStyle } from "./GlobalStyle";
 // Routing
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// Header
+// Components
 import Header from "./components/Header/header";
-import Home from "./components/Home";
-import MyXSwaps from "./components/MyXSwaps";
 import NavBar from "./components/NavBar/navbar";
+// Views
+import Home from "./views/HomeView/home";
+import MyXSwaps from "./views/MyXSwapsView/myxswaps";
 // Hook
 import { useLogInState } from "./hooks/useLogInState";
 

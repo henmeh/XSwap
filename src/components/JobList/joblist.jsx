@@ -2,12 +2,37 @@ import React, { useState, useEffect } from "react";
 // Components
 import Job from "../Job/job";
 // Functions
-import { getMyEthTransactions, getMyPolygonTransactions } from "../../functions/functions";
+import {
+  getMyEthTransactions,
+  getMyPolygonTransactions,
+} from "../../functions/functions";
 // Styling
 import { Wrapper, Content } from "./jobList.styles";
+// Moralis
+import moralis from "moralis";
+
+moralis.initialize("dOiVpAxnylme9VPx99olzmbyQzB4Jk2TgL0g1Y5A");
+moralis.serverURL = "https://kuuj059ugtmh.usemoralis.com:2053/server";
 
 const JobList = ({ chain }) => {
   const [jobData, setJobData] = useState([]);
+  const init = async function () {
+    let query;
+    let subscription;
+    if (chain === 0) {
+      query = new moralis.Query("EthTransactions");
+      subscription = await query.subscribe();
+    } else if (chain === 137) {
+      query = new moralis.Query("PolygonTransactions");
+      subscription = await query.subscribe();
+    }
+    subscription.on("create", async (object) => {
+      await componentDidMount(chain);
+    });
+    subscription.on("update", async (object) => {
+      await componentDidMount(chain);
+    });
+  };
 
   const componentDidMount = async (_chain) => {
     let jobs = [];
@@ -25,11 +50,12 @@ const JobList = ({ chain }) => {
     //}
   }, [chain]);
 
+  init();
   return (
     <Wrapper>
       <h2>
         {chain === 0
-          ? "Follow your XSwaps on Ehtereum"
+          ? "Follow your XSwaps on Ethereum"
           : "Follow your XSwaps on Polygon"}
       </h2>
       <Content>
@@ -39,7 +65,7 @@ const JobList = ({ chain }) => {
               <th>Tx Hash</th>
               <th>Method</th>
               <th>To Address</th>
-              <th>Ether</th>
+              <th>{chain === 0 ? "Ether" : "Matic"}</th>
               <th>Token Amount</th>
               <th>TokenSymbol</th>
               <th>Status</th>

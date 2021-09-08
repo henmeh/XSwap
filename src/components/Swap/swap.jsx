@@ -34,14 +34,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Swap() {
-  const classes = useStyles();
+  //const classes = useStyles();
 
   const [ethToken, setEthToken] = useState([]);
   const [polygonToken, setPolygonToken] = useState([]);
   const [fromToken, setFromToken] = useState({});
   const [toToken, setToToken] = useState({});
   const [swapAmount, setSwapAmount] = useState();
-  const [slippage, setSlippage] = useState("0.01");
+  const [slippage, setSlippage] = useState("1");
   const [fromChain, setFromChain] = useState();
   const [toChain, setToChain] = useState();
   const [status, setStatus] = useState();
@@ -74,21 +74,14 @@ export default function Swap() {
     setStatus(_status);
   }
 
-  const swap = () => {
-    console.log(fromToken);
-    console.log(toToken);
-    console.log(fromChain);
-    console.log(toChain);
-    console.log(swapAmount);
-    console.log(slippage);
-    console.log(status);
-    //const swapAmountWei = Number(swapAmount) * Math.pow(10, Number(fromToken.decimals))
-    //swapTokens(fromToken.address, toToken.address, swapAmountWei, fromChain, toChain, status);
+  const swap = async () => {
+    const swapAmountWei = Number(swapAmount) * Math.pow(10, Number(fromToken.decimals))
+    await swapTokens(fromToken.address, toToken.address, swapAmountWei.toString(), fromChain, toChain, slippage, status);
   }
 
-  const check = (value) => {
-    console.log(value);
-  }
+  //const check = (value) => {
+  //  console.log(value);
+  //}
 
   return (
     <Wrapper>
@@ -98,13 +91,13 @@ export default function Swap() {
       </div>
       <div id="select-slippage" onChange={(event) => {setSlippage(event.target.value)}}>
       Max Slippage: 
-      <input type="radio" id="0.1%" value="0.001" name="slippage"/>
+      <input type="radio" id="0.1%" value="0.1" name="slippage"/>
       <label >0.1%</label>
-      <input type="radio" id="0.5%" value="0.005" name="slippage"/>
+      <input type="radio" id="0.5%" value="0.5" name="slippage"/>
       <label >0.5%</label>
-      <input type="radio" id="1.00%" value="0.01" name="slippage" defaultChecked/>
+      <input type="radio" id="1.00%" value="1" name="slippage" defaultChecked/>
       <label >1.0%</label>
-      <input type="radio" id="3.00%" value="0.03" name="slippage"/>
+      <input type="radio" id="3.00%" value="3" name="slippage"/>
       <label >3.0%</label>      
       </div>
       <div id="swapamount-input">
