@@ -4,6 +4,11 @@ import { Wrapper } from "./balanceList.styles";
 import Balance from "../Balance/balance";
 
 const BalanceList = ({ balanceData }) => {
+  if (!balanceData) {
+    return <Wrapper>
+      
+    </Wrapper>
+  } else {
   return (
     <Wrapper>
       <table>
@@ -44,7 +49,7 @@ const BalanceList = ({ balanceData }) => {
           </tbody>
         </table>
     </Wrapper>
-  );
+  );}
 };
 
 export default BalanceList;

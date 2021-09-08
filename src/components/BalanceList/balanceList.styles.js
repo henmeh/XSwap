@@ -4,6 +4,7 @@ export const Wrapper = styled.div`
   overflow-x: auto;
   height: 500px;
   box-shadow: 0 4px 8px 0 black;
+  background-color: var(--primaryColor);
 
   thead {
     color: var(--accentColor);
@@ -17,6 +18,5 @@ export const Wrapper = styled.div`
     height: 100%;
     margin: 0 auto;
     border-collapse: collapse;
-    background-color: var(--primaryColor);
   }
 `;

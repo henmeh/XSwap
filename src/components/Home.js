@@ -10,42 +10,33 @@ import { getMyBalances } from "../functions/functions";
 // Display as Grid
 const Wrapper = styled.div`
   display: grid;
-  grid-template-columns: 1fr 500px 1fr;
-  grid-column-gap: 10px;
-  align-items: center;
-  justify-content: center;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  grid-column-gap: 15px;
+  grid-row-gap: 15px;
   padding: 5px 5px;
-
-  @media (max-width: 1400px) {
-    grid-template-columns: 1fr 500px;
-    grid-row-gap: 10px;
+  align-items: center;
+  width: 100%;
+  
+  @media (max-width: 1510px) {
+    margin: 40px 0 0 0;
+    .item3{
+      grid-column: 1 / 3;
+    }
   }
 
-  @media (max-width: 1000px) {
-    grid-template-columns: 1fr;
-    grid-row-gap: 10px;
+  @media (max-width: 1010px) {
+    grid-column-gap: 0px;
+    .item2{
+      grid-column: 1 / 3;
+    }
+    .item3{
+      grid-column: 1 / 4;
+    }
   }
 `;
-
-/*
-// Display as FlexBox
-const Wrapper = styled.div`
-  display: flex;
-  //flex-direction: row;
-  justify-content: space-around;
-  align-items: center;
-  padding: 5px 5px;
-  //flex-wrap: wrap;
-  //height: 1500px;
-
-  //@media (max-width: 768px) {
-  //  flex-direction: column;
-  //}
-`;
-*/
 
 const Home = ({ user }) => {
-  const [balanceData, setBalanceData] = useState([]);
+  const [balanceData, setBalanceData] = useState(false);
 
   const componentDidMount = async () => {
     let balances = await getMyBalances();
@@ -53,15 +44,17 @@ const Home = ({ user }) => {
   };
 
   useEffect(() => {
+    if (!balanceData) {
       componentDidMount();
-  }, []);
+    }
+  });
 
   if (user) {
     return (
       <Wrapper>
-        <BalanceList balanceData={balanceData} />
-        <DonutChart balanceData={balanceData}/>
-        <Swap />
+        <div class="item1"><BalanceList balanceData={balanceData} /></div>
+        <div class="item2"><DonutChart balanceData={balanceData} /></div>
+        <div class="item3"><Swap /></div>
       </Wrapper>
     );
   } else {
@@ -72,5 +65,7 @@ const Home = ({ user }) => {
 export default Home;
 
 /*
-
+<div class="item1"><BalanceList balanceData={balanceData} /></div>
+        <div class="item2"><DonutChart balanceData={balanceData} /></div>
+        <div class="item3"><Swap /></div>
 */

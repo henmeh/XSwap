@@ -2,20 +2,26 @@ import styled from "styled-components";
 
 export const Wrapper = styled.div`
   //width: 400px;
-  overflow-x: auto;
   height: 500px;
   box-shadow: 0 4px 8px 0 black;
   background-color: var(--primaryColor);
+  text-align: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
 
   h2 {
-    color: var(--highLightColor);
-    text-align: center;
+    position: absolute;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
+  
 
-  div {
-  }
-
-  @media (max-width: 1000px) {
-    justify-self: center;
+  @media (max-width: 1010px) {
+    //    grid-column: 1 / 3;
+    display: flex;
+    justify-items: center;
+    align-items: center;
   }
 `;
