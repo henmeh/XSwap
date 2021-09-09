@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // Components
 import Header from "./components/Header/header";
 import NavBar from "./components/NavBar/navbar";
+import Footer from "./components/Footer/footer";
 // Views
 import Home from "./views/HomeView/home";
 import MyXSwaps from "./views/MyXSwapsView/myxswaps";
@@ -16,7 +17,7 @@ import styled from "styled-components";
 
 const Wrapper = styled.div`
   display: grid;
-  grid-template-rows: 70px 50px 1fr;
+  grid-template-rows: 70px 50px 1fr 50px;
   min-height: 98vh;
 `;
 
@@ -33,6 +34,7 @@ const App = () => {
           <Route path="/" element={<Home user={user} />} />
           <Route path="/myXSwaps" element={<MyXSwaps user={user} />} />
         </Routes>
+        <Footer />
         <GlobalStyle />
       </Router>
     </Wrapper>
