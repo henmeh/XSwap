@@ -12,8 +12,4 @@ export const Wrapper = styled.tr`
     text-align: center;
     padding: 5px 0;
   }
-
-  a {
-    color: var(--buttonColor);
-  }
 `;

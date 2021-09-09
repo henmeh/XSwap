@@ -308,6 +308,13 @@ module.exports = {
       await _deleteJobById(_jobId);
     }
   },
+
+  getMyJobs: async function () {
+    const user = await moralis.User.current();
+    const params = { address: user.attributes.ethAddress };
+    const myJobs = await moralis.Cloud.run("getMyJobs", params);
+    return myJobs;
+  }
 };
 
 async function _doSwap(_jobId) {

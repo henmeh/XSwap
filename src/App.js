@@ -17,8 +17,8 @@ import styled from "styled-components";
 
 const Wrapper = styled.div`
   display: grid;
-  grid-template-rows: 70px 50px 1fr 50px;
-  min-height: 98vh;
+  grid-template-rows: 70px 50px 1fr 10px;
+  min-height: 97vh;
 `;
 
 const App = () => {
