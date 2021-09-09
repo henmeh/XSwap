@@ -1,41 +1,14 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 // Styles
 import { Wrapper } from "./Swap.styles";
-import { makeStyles } from "@material-ui/core/styles";
-import TokenSelectButton from "../Buttons/popOverButton";
-import axios from "axios";
+// Components
 import NormalButton from '../Buttons/NormalButton/normalbutton';
-import TextField from '@material-ui/core/TextField';
-import Input from '@material-ui/core/Input';
-import { swapTokens } from "../../functions/functions";
-
-
-
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    border: "1px solid",
-    padding: theme.spacing(1),
-    backgroundColor: theme.palette.background.paper,
-  },
-  root: {
-    minWidth: 275,
-  },
-  bullet: {
-    display: "inline-block",
-    margin: "0 2px",
-    transform: "scale(0.8)",
-  },
-  title: {
-    fontSize: 14,
-  },
-  pos: {
-    marginBottom: 12,
-  },
-}));
+import TokenSelectButton from "../Buttons/popOverButton";
+// Functions
+import { swapTokens, calcExpectedReturn } from "../../functions/functions";
 
 export default function Swap() {
-  //const classes = useStyles();
-
   const [ethToken, setEthToken] = useState([]);
   const [polygonToken, setPolygonToken] = useState([]);
   const [fromToken, setFromToken] = useState({});
@@ -45,6 +18,7 @@ export default function Swap() {
   const [fromChain, setFromChain] = useState();
   const [toChain, setToChain] = useState();
   const [status, setStatus] = useState();
+  const [expectedReturn, setExpectedReturn] = useState();
 
   //Chain indizes
   //Ethereum  = 1
@@ -79,9 +53,18 @@ export default function Swap() {
     await swapTokens(fromToken.address, toToken.address, swapAmountWei.toString(), fromChain, toChain, slippage, status);
   }
 
-  //const check = (value) => {
-  //  console.log(value);
-  //}
+  const changeSwapAmount = async (_swapAmount) => {
+    if(_swapAmount && parseFloat(_swapAmount) !== 0) {
+      setSwapAmount(_swapAmount);
+      const swapAmountWei = Number(_swapAmount) * Math.pow(10, Number(fromToken.decimals))
+      const expReturn = await calcExpectedReturn(fromToken.address, fromToken.decimals, toToken.address, swapAmountWei.toString(), fromChain, toChain);
+      setExpectedReturn(expReturn);
+    } 
+    else {
+      setSwapAmount();
+      setExpectedReturn();
+    }
+  }
 
   return (
     <Wrapper>
@@ -101,7 +84,7 @@ export default function Swap() {
       <label >3.0%</label>      
       </div>
       <div id="swapamount-input">
-      <input type="number" placeholder="Input Swapamount" onChange={((event) => setSwapAmount(event.target.value))}/>
+      <input type="number" placeholder="Input Swapamount" onChange={((event) => changeSwapAmount(event.target.value))}/>
       </div>
       <div id="swapbutton">
         <NormalButton text={"Swap"} onClick={swap} />
@@ -109,7 +92,7 @@ export default function Swap() {
       <div id="expected-return">
         Expected return 
       </div>
-      <div id="expected-return-value"> {""} </div>
+      <div id="expected-return-value"> {expectedReturn ? expectedReturn : "-"} </div>
       <div id="to-token-select">
         <TokenSelectButton title="Token on Ethereum" tokens={ethToken} chain={1} status={"new"} tokenChoice={handleToTokenChoice}/>
         <TokenSelectButton title="Token on Polygon" tokens={polygonToken} chain={137} status={"new"} tokenChoice={handleToTokenChoice}/>
