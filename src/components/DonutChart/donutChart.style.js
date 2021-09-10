@@ -9,6 +9,7 @@ export const Wrapper = styled.div`
   color: white;
   display: flex;
   flex-direction: column;
+  overflow: auto;
 
   h2 {
     position: absolute;

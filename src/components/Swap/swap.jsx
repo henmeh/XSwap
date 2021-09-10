@@ -49,8 +49,9 @@ export default function Swap() {
   }
 
   const swap = async () => {
-    const swapAmountWei = Number(swapAmount) * Math.pow(10, Number(fromToken.decimals))
-    await swapTokens(fromToken.address, toToken.address, swapAmountWei.toString(), fromChain, toChain, slippage, status);
+    console.log(fromToken);
+    //const swapAmountWei = Number(swapAmount) * Math.pow(10, Number(fromToken.decimals))
+    //await swapTokens(fromToken.address, toToken.address, swapAmountWei.toString(), fromChain, toChain, slippage, status, fromToken.name, toToken.name);
   }
 
   const changeSwapAmount = async (_swapAmount) => {

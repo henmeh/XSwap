@@ -282,7 +282,9 @@ module.exports = {
     _fromChain,
     _toChain,
     _slippage,
-    _status
+    _status,
+    _fromTokenSymbol,
+    _toTokenSymbol,
   ) {
     let _jobId;
     // Check if status = new and store new Job in moralis DB
@@ -293,7 +295,9 @@ module.exports = {
         _swapAmount,
         _fromChain,
         _toChain,
-        _slippage
+        _slippage,
+        _fromTokenSymbol,
+        _toTokenSymbol,
       );
     }
     // If fromChain == toChain than direct Networkcheck and Swap
@@ -389,7 +393,9 @@ async function _storeJobData(
   _amount,
   _fromChain,
   _toChain,
-  _slippage
+  _slippage,
+  _fromTokenSymbol,
+  _toTokenSymbol
 ) {
   let user = await moralis.User.current();
   const _userAddress = user.attributes.ethAddress;
@@ -405,6 +411,8 @@ async function _storeJobData(
   job.set("txHash", "");
   job.set("status", "new");
   job.set("slippage", _slippage);
+  job.set("fromTokenSymbol", _fromTokenSymbol);
+  job.set("toTokenSymbol", _toTokenSymbol);
 
   await job.save();
 

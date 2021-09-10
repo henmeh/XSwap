@@ -27,9 +27,10 @@ const continueJob = async (_jobId) => {
   );
 };
 
-const OpenJob = ({ jobId }) => (
+const OpenJob = ({ jobId, fromTokenSymbol, toTokenSymbol }) => (
   <Wrapper>
     <td> {jobId} </td>
+    <td> {`${fromTokenSymbol} -> ${toTokenSymbol}`} </td>
     <td>
       <div>
         <NormalButton text={"Continue"} onClick={() => continueJob(jobId)} />
@@ -40,3 +41,6 @@ const OpenJob = ({ jobId }) => (
 );
 
 export default OpenJob;
+/*
+
+*/

@@ -25,7 +25,7 @@ const OpenJobList = () => {
     let subscription;
     query = new moralis.Query("Jobs");
     subscription = await query.subscribe();
-    subscription.on("delete", async (object) => {
+    subscription.on("delete", async () => {
       await componentDidMount();
     });
   };
@@ -44,12 +44,13 @@ const OpenJobList = () => {
           <thead>
             <tr>
               <th>XSwapId</th>
+              <th>XSwap Description</th>
               <th>ToDo</th>
             </tr>
           </thead>
           <tbody>
-            {openJobData.map(({ id }) => (
-              <OpenJob key={id} jobId={id} />
+            {openJobData.map((job) => (
+              <OpenJob key={job.id} jobId={job.id} fromTokenSymbol={job.attributes.fromTokenSymbol} toTokenSymbol={job.attributes.toTokenSymbol}/>
             ))}
           </tbody>
         </table>
