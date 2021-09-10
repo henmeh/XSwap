@@ -8,8 +8,13 @@ export const Wrapper = styled.tr`
   td {
     color: var(--highLightColor);
     border-bottom: 1px solid black;
-    width: 100px;
     text-align: center;
     padding: 5px 0;
+  }
+
+  div {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
   }
 `;

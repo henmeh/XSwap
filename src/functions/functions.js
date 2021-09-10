@@ -95,16 +95,14 @@ module.exports = {
           }
           // the usd price for all other tokens can be fetched from moralis
           else {
-            balances[i]["usdPrice"] = usdPrices[i].usdPrice;
+            balances[i]["usdPrice"] = usdPrices[i].usdPrice ? usdPrices[i].usdPrice : "NAN";
             // setting the token image
             // ask if the token is on eth or on polygon
             if (balances[i]["chainName"] === "eth") {
-              balances[i]["image"] =
-                oneInchTokenEth[balances[i]["tokenAddress"]]["logoURI"];
+              balances[i]["image"] = oneInchTokenEth[balances[i]["tokenAddress"]] ? oneInchTokenEth[balances[i]["tokenAddress"]]["logoURI"] : false;
             }
             if (balances[i]["chainName"] === "polygon") {
-              balances[i]["image"] =
-                oneInchTokenPolygon[balances[i]["tokenAddress"]]["logoURI"];
+              balances[i]["image"] = oneInchTokenPolygon[balances[i]["tokenAddress"]] ? oneInchTokenPolygon[balances[i]["tokenAddress"]]["logoURI"] : false;
             }
           }
         }
@@ -314,7 +312,20 @@ module.exports = {
     const params = { address: user.attributes.ethAddress };
     const myJobs = await moralis.Cloud.run("getMyJobs", params);
     return myJobs;
+  },
+
+  deleteJobById: async function (_jobId) {
+    const params = { id: _jobId };
+    let job = await moralis.Cloud.run("getJobsById", params);
+    await job.destroy();
+  },
+
+  getJobById: async function (_jobId) {
+    const params = { id: _jobId };
+    let job = await moralis.Cloud.run("getJobsById", params);
+    return job;
   }
+
 };
 
 async function _doSwap(_jobId) {
@@ -366,6 +377,12 @@ async function _networkCheck(_networkId) {
   }
 }
 
+async function _deleteJobById(_jobId) {
+  const params = { id: _jobId };
+  let job = await moralis.Cloud.run("getJobsById", params);
+  await job.destroy();
+}
+
 async function _storeJobData(
   _fromTokenAddress,
   _toTokenAddress,
@@ -392,12 +409,6 @@ async function _storeJobData(
   await job.save();
 
   return job.id;
-}
-
-async function _deleteJobById(_jobId) {
-  const params = { id: _jobId };
-  let job = await moralis.Cloud.run("getJobsById", params);
-  await job.destroy();
 }
 
 async function _getQuote(_fromTokenAddress, _toTokenAddress, _swapAmount, _chain) {

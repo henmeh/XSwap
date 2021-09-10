@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 // Styles
 import { Wrapper } from "./MyXSwap.styles";
 // Component
 import JobList from "../../components/JobList/joblist";
 import OpenJobList from "../../components/OpenJobList/openjoblist";
-import NormalButton from "../../components/Buttons/NormalButton/normalbutton";
+import ImageButton from "../../components/Buttons/ImageButton/imagebutton";
+import Ethereum from "../../Images/ethereum.png";
+import Polygon from "../../Images/polygon3.png";
 
 const MyXSwaps = ({ user }) => {
   const [chain, setChain] = useState(1);
@@ -17,8 +19,8 @@ const MyXSwaps = ({ user }) => {
         </div>
         <div className="transactions">
           <div className="chainButtons">
-            <NormalButton text={"Ethereum"} onClick={() => setChain(1)} />
-            <NormalButton text={"Polygon"} onClick={() => setChain(137)} />
+            <ImageButton image={Ethereum} height={25} onClick={() => setChain(1)} />
+            <ImageButton image={Polygon} height={25} onClick={() => setChain(137)} />
             <h2>
               {chain === 1
                 ? "Follow your XSwaps on Ethereum"

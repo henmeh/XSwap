@@ -1,7 +1,6 @@
 import styled from "styled-components";
 
 export const Wrapper = styled.tr`
-  //border-right: 1px solid green;
   
   :hover {
       opacity: 0.8; 

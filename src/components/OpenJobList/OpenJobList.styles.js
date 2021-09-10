@@ -7,7 +7,7 @@ export const Wrapper = styled.div`
 `;
 
 export const Content = styled.div`
-  height: 450px;
+  //height: 450px;
   overflow-x: auto;
   box-shadow: 0 4px 8px 0 black;
 

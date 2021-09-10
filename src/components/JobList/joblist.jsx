@@ -64,8 +64,8 @@ const JobList = ({ chain }) => {
               <th>{chain === 1 ? "Ether" : "Matic"}</th>
               <th>Token Amount</th>
               <th>TokenSymbol</th>
+              <th>Date</th>
               <th>Status</th>
-              {chain === 137 && <th>Activity</th>}
             </tr>
           </thead>
           <tbody>
@@ -81,6 +81,7 @@ const JobList = ({ chain }) => {
                 status,
                 activity,
                 activityId,
+                date,
               }) => (
                 <Job
                   key={hash}
@@ -95,6 +96,7 @@ const JobList = ({ chain }) => {
                   activity={activity}
                   activityId={activityId}
                   chain={chain}
+                  date={date}
                 />
               )
             )}
