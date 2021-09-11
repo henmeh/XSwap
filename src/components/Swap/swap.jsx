@@ -6,7 +6,7 @@ import { Wrapper } from "./Swap.styles";
 import NormalButton from '../Buttons/NormalButton/normalbutton';
 import TokenSelectButton from "../Buttons/popOverButton";
 // Functions
-import { swapTokens, calcExpectedReturn } from "../../functions/functions";
+import { swapTokens, calcExpectedReturn, storeJobData } from "../../functions/functions";
 
 export default function Swap() {
   const [ethToken, setEthToken] = useState([]);
@@ -49,9 +49,11 @@ export default function Swap() {
   }
 
   const swap = async () => {
-    console.log(fromToken);
-    //const swapAmountWei = Number(swapAmount) * Math.pow(10, Number(fromToken.decimals))
-    //await swapTokens(fromToken.address, toToken.address, swapAmountWei.toString(), fromChain, toChain, slippage, status, fromToken.name, toToken.name);
+    const swapAmountWei = Number(swapAmount) * Math.pow(10, Number(fromToken.decimals))
+    // store the new Job
+    const jobId = await storeJobData(fromToken.address, toToken.address, swapAmountWei.toString(), fromChain, toChain, slippage, fromToken.name, toToken.name);    
+    // start the new Job
+    await swapTokens(jobId);
   }
 
   const changeSwapAmount = async (_swapAmount) => {

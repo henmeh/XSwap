@@ -29,7 +29,7 @@ const Job = ({
   date
 }) => (
   <Wrapper>
-    <td> { chain === 0 ? <a href={`https://etherscan.io/tx/${hash}`} target="_tab">{formatAddresses(hash)}</a> : <a href={`https://polygonscan.com/tx/${hash}`} target="_tab">{formatAddresses(hash)}</a> }</td>
+    <td> { chain === 1 ? <a href={`https://etherscan.io/tx/${hash}`} target="_tab">{formatAddresses(hash)}</a> : <a href={`https://polygonscan.com/tx/${hash}`} target="_tab">{formatAddresses(hash)}</a> }</td>
     <td> {method}</td>
     <td> {formatAddresses(toAddress)}</td>
     <td> {value === 0 ? "0" : formatBalance(value, 18)}</td>
