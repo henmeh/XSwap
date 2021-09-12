@@ -15,16 +15,7 @@ const deleteJob = async (_jobId) => {
 };
 
 const continueJob = async (_jobId) => {
-  const job = await getJobById(_jobId);
-  await swapTokens(
-    job.attributes.fromTokenAddress,
-    job.attributes.toTokenAddress,
-    job.attributes.amount,
-    job.attributes.fromChain,
-    job.attributes.toChain,
-    job.attributes.slippage,
-    job.attributes.status
-  );
+  await swapTokens(_jobId);
 };
 
 const OpenJob = ({ jobId, fromTokenSymbol, toTokenSymbol }) => (

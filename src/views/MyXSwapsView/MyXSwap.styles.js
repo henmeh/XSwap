@@ -22,6 +22,7 @@ color: var(--highLightColor);
 .chainButtons {
     align-self: center;
     display: flex;
+    width: 550px;
   }
 
 h2 {

@@ -17,7 +17,6 @@ export default function Swap() {
   const [slippage, setSlippage] = useState("1");
   const [fromChain, setFromChain] = useState();
   const [toChain, setToChain] = useState();
-  const [status, setStatus] = useState();
   const [expectedReturn, setExpectedReturn] = useState();
 
   //Chain indizes
@@ -42,10 +41,9 @@ export default function Swap() {
     setFromChain(_chain);
   }
 
-  const handleToTokenChoice = (_toToken, _chain, _status) => {
+  const handleToTokenChoice = (_toToken, _chain) => {
     setToToken(_toToken);
     setToChain(_chain);
-    setStatus(_status);
   }
 
   const swap = async () => {
