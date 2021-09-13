@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const Wrapper = styled.div`
   overflow-x: auto;
-  height: 300px;
+  height: 310px;
   box-shadow: 0 4px 8px 0 black;
   background-color: var(--primaryColor);
   color: var(--highLightColor);

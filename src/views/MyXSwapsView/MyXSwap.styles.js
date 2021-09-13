@@ -30,6 +30,7 @@ h2 {
 }
 
 @media (max-width: 1000px) {
+  margin: 40px 0 0 0;
   grid-template-columns: 1fr;
   grid-row-gap: 10px;
 }

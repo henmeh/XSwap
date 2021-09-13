@@ -4,11 +4,7 @@ import { Wrapper } from "./OpenJob.styles";
 // Components
 import NormalButton from "../Buttons/NormalButton/normalbutton";
 // Functions
-import {
-  deleteJobById,
-  getJobById,
-  swapTokens,
-} from "../../functions/functions";
+import { deleteJobById, swapTokens } from "../../functions/functions";
 
 const deleteJob = async (_jobId) => {
   await deleteJobById(_jobId);
@@ -32,6 +28,3 @@ const OpenJob = ({ jobId, fromTokenSymbol, toTokenSymbol }) => (
 );
 
 export default OpenJob;
-/*
-
-*/

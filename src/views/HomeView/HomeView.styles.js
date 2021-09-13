@@ -9,7 +9,7 @@ padding: 5px 5px;
 align-items: center;
 width: 100%;
 
-@media (max-width: 1510px) {
+@media (max-width: 1540px) {
   margin: 40px 0 0 0;
   .item3{
     grid-column: 1 / 3;
