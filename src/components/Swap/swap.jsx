@@ -54,6 +54,36 @@ export default function Swap() {
     await swapTokens(jobId);
   }
 
+  const swapEth_Eth_to_Polygon = async () => {
+    // store the new Job
+    const jobId = await storeJobData("0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa", "10000000000000000", 1, 137, "1", "Eth", "WETH");    
+    await swapTokens(jobId);
+  }
+
+  const swapPoS_Eth_to_Polygon = async () => {
+    // store the new Job
+    const jobId = await storeJobData("0x655f2166b0709cd575202630952d71e2bb0d61af", "0xfe4f5145f6e09952a5ba9e956ed0c25e3fa4c7f1", "10000000000000000", 1, 137, "1", "DERC20", "DERC20");    
+    await swapTokens(jobId);
+  }
+
+  const swapPlasma_Eth_to_Polygon = async () => {
+    // store the new Job
+    const jobId = await storeJobData("0x499d11e0b6eac7c0593d8fb292dcbbf815fb29ae", "0x2d7882bedcbfddce29ba99965dd3cdf7fcb10a1e", "500000000000000000", 1, 137, "1", "Testv4", "TST");    
+    await swapTokens(jobId);
+  }
+
+  const swapPoS_Polygon_to_Eth = async () => {
+    // store the new Job
+    const jobId = await storeJobData("0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa", "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "10000000000000000", 137, 1, "1", "WETH", "ETH");    
+    await swapTokens(jobId);
+  }
+
+  const swapPlasma_Polygon_to_Eth = async () => {
+    // store the new Job
+    const jobId = await storeJobData("0x0000000000000000000000000000000000001001", "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", "1000000000000000000", 137, 1, "1", "Matic", "ETH");    
+    await swapTokens(jobId);
+  }
+
   const changeSwapAmount = async (_swapAmount) => {
     if(_swapAmount && parseFloat(_swapAmount) !== 0) {
       setSwapAmount(_swapAmount);
@@ -69,7 +99,17 @@ export default function Swap() {
 
   return (
     <Wrapper>
-      <div id="from-token-select">
+        <NormalButton text={"Swap Eth from Eth to Polygon"} onClick={swapEth_Eth_to_Polygon} />
+        <NormalButton text={"Swap PoS from Eth to Polygon"} onClick={swapPoS_Eth_to_Polygon} />
+        <NormalButton text={"Swap Plasma from Eth to Polygon"} onClick={swapPlasma_Eth_to_Polygon} />
+        <NormalButton text={"Swap PoS from Polygon to Eth"} onClick={swapPoS_Polygon_to_Eth} />
+        <NormalButton text={"Swap Plasma from Polygon to Eth"} onClick={swapPlasma_Polygon_to_Eth} />
+    </Wrapper>
+  );
+}
+
+/*
+ <div id="from-token-select">
         <TokenSelectButton title="Token on Ethereum" tokens={ethToken} chain={1} status={"new"} tokenChoice={handleFromTokenChoice}/>
         <TokenSelectButton title="Token on Polygon" tokens={polygonToken} chain={137} status={"new"} tokenChoice={handleFromTokenChoice}/>
       </div>
@@ -98,6 +138,5 @@ export default function Swap() {
         <TokenSelectButton title="Token on Ethereum" tokens={ethToken} chain={1} status={"new"} tokenChoice={handleToTokenChoice}/>
         <TokenSelectButton title="Token on Polygon" tokens={polygonToken} chain={137} status={"new"} tokenChoice={handleToTokenChoice}/>
       </div>    
-    </Wrapper>
-  );
-}
+
+*/

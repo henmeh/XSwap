@@ -10,8 +10,13 @@ import { getMyBalances } from "../../functions/functions";
 // Moralis
 import moralis from "moralis";
 
-moralis.initialize("dOiVpAxnylme9VPx99olzmbyQzB4Jk2TgL0g1Y5A");
-moralis.serverURL = "https://kuuj059ugtmh.usemoralis.com:2053/server";
+//Mainnet
+//moralis.initialize("dOiVpAxnylme9VPx99olzmbyQzB4Jk2TgL0g1Y5A");
+//moralis.serverURL = "https://kuuj059ugtmh.usemoralis.com:2053/server";
+
+//Testnet
+moralis.initialize("WkrP3HyS5n1oBT76fHjMKoHEg5dDjBxXeFJUiOOj");
+moralis.serverURL = "https://0kvvzllxphoo.bigmoralis.com:2053/server";
 
 const Home = ({ user }) => {
   const [balanceData, setBalanceData] = useState(false);
@@ -68,7 +73,7 @@ const Home = ({ user }) => {
     return (
       <Wrapper>
         <div className="item1"><BalanceList balanceData={balanceData} /></div>
-        <div className="item2"><DonutChart balanceData={balanceData} /></div>
+       
         <div className="item3"><Swap /></div>
       </Wrapper>
     );
@@ -78,3 +83,7 @@ const Home = ({ user }) => {
 };
 
 export default Home;
+
+/*
+ <div className="item2"><DonutChart balanceData={balanceData} /></div>
+*/

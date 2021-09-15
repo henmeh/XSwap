@@ -40,7 +40,7 @@ const BalanceList = ({ balanceData }) => {
                   chain={chain}
                   decimals={parseFloat(decimals)}
                   image={image}
-                  name={name}
+                  name={tokenAddress}
                   symbol={symbol}
                   usdPrice={usdPrice}
                 />

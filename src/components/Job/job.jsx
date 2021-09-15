@@ -1,8 +1,6 @@
 import React from "react";
 // Styles
 import { Wrapper } from "./Job.styles";
-// Packages
-import { DateTime } from "luxon";
 
 const formatBalance = (balance, decimals) =>
   (balance / Math.pow(10, decimals)).toFixed(8);

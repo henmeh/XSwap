@@ -7,7 +7,7 @@ export const Wrapper = styled.div`
   background-color: var(--primaryColor);
   color: var(--highLightColor);
   padding: 10px 20px;
-  display: grid;
+  display: flex;//grid;
   align-items: center;
 
   #from-token-select {

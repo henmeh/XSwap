@@ -11,8 +11,13 @@ import { Wrapper, Content } from "./jobList.styles";
 // Moralis
 import moralis from "moralis";
 
-moralis.initialize("dOiVpAxnylme9VPx99olzmbyQzB4Jk2TgL0g1Y5A");
-moralis.serverURL = "https://kuuj059ugtmh.usemoralis.com:2053/server";
+//Mainnet
+//moralis.initialize("dOiVpAxnylme9VPx99olzmbyQzB4Jk2TgL0g1Y5A");
+//moralis.serverURL = "https://kuuj059ugtmh.usemoralis.com:2053/server";
+
+//Testnet
+moralis.initialize("WkrP3HyS5n1oBT76fHjMKoHEg5dDjBxXeFJUiOOj");
+moralis.serverURL = "https://0kvvzllxphoo.bigmoralis.com:2053/server";
 
 const JobList = ({ chain }) => {
   const [jobData, setJobData] = useState([]);

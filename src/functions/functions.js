@@ -6,11 +6,15 @@ const MaticPOSClient = require("@maticnetwork/maticjs").MaticPOSClient;
 const Matic = require("@maticnetwork/maticjs");
 const Web3 = require("web3");
 
-moralis.initialize("dOiVpAxnylme9VPx99olzmbyQzB4Jk2TgL0g1Y5A");
-moralis.serverURL = "https://kuuj059ugtmh.usemoralis.com:2053/server";
+//Mainnet
+//moralis.initialize("dOiVpAxnylme9VPx99olzmbyQzB4Jk2TgL0g1Y5A");
+//moralis.serverURL = "https://kuuj059ugtmh.usemoralis.com:2053/server";
 
 async function init() {
   window.web3 = await moralis.Web3.enable();
+  //Testnet
+  moralis.initialize("WkrP3HyS5n1oBT76fHjMKoHEg5dDjBxXeFJUiOOj");
+  moralis.serverURL = "https://0kvvzllxphoo.bigmoralis.com:2053/server";
 }
 
 init();
@@ -53,7 +57,7 @@ module.exports = {
         const params = { address: _userAddress };
         const balances = await moralis.Cloud.run("getMyBalances", params);
 
-        // Prepare for Fetching all the usdPrices in parallel await function
+      /*  // Prepare for Fetching all the usdPrices in parallel await function
         let tokenPricePromises = [];
         // adding the native currencies from coingecko for eth
         tokenPricePromises.push(
@@ -105,7 +109,7 @@ module.exports = {
               balances[i]["image"] = oneInchTokenPolygon[balances[i]["tokenAddress"]] ? oneInchTokenPolygon[balances[i]["tokenAddress"]]["logoURI"] : false;
             }
           }
-        }
+        } */
         return balances;
       }
     } catch (error) {
@@ -278,21 +282,26 @@ module.exports = {
   swapTokens: async function (_jobId) {
     // first get the actual Job
     let job = await _getJobById(_jobId);
+    const user = await moralis.User.current();
+    const _userAddress = user.attributes.ethAddress;
     
     // set all necessary swap parameters    
     let _fromTokenAddress = job.attributes.fromTokenAddress;
+    let _newFromTokenAddress = job.attributes.newFromTokenAddress;
     let _toTokenAddress = job.attributes.toTokenAddress;
     let _swapAmount = job.attributes.amount;
     let _fromChain = job.attributes.fromChain;
     let _toChain = job.attributes.toChain;
     let _slippage = job.attributes.slippage;
     let _status = job.attributes.status;
-    let _txHash = job.attributes.status;
+    let _txHash = job.attributes.txHash;
+
+    console.log(_fromTokenAddress);
     
     // If fromChain == toChain than direct Networkcheck and Swap
     if (_fromChain === _toChain) {
       switch(_status) {
-        case "new":
+        case "new XSwap":
           // Check for the right network in Metamask
           await _networkCheck(_toChain);
           // Do the swap and update Jobdata on Moralis DB
@@ -302,7 +311,7 @@ module.exports = {
           job.set("amount", _swapAmount);
           await job.save();
           break;
-        case `swapped${_toChain}`:
+        case `Tokens swapped on ${_toChain}`:
           // Delete the Job after swapping
           await _deleteJobById(_jobId);
           break;  
@@ -311,79 +320,82 @@ module.exports = {
     // Swap from Ethereum to Polygon
     else if (_fromChain === 1 && _toChain === 137) {
       // Check if fromToken can directly be bridged with the PoSBridge
-      if (mappedPoSTokensEth.includes(_fromTokenAddress)) {
+      if (_fromTokenAddress === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" ||  _fromTokenAddress === "0x655f2166b0709cd575202630952d71e2bb0d61af"/*mappedPoSTokensEth.includes(_fromTokenAddress)*/) {
+        console.log("Hallo von PoS XSwap");
+        const _fromTokenIndex = mappedPoSTokensEth.indexOf(_fromTokenAddress);
+        const _fromTokenAddressOnPolygon = "0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa"; //mappedPoSTokensPolygon[_fromTokenIndex];
         switch(_status) {
-          case "new":
+          case "new XSwap":
             // Check for the right network in Metamask
-            await _networkCheck(_fromChain);
-            const _fromTokenIndex = mappedPoSTokensEth.indexOf(_fromTokenAddress);
-            const _fromTokenAddressOnPolygon = mappedPoSTokensPolygon[_fromTokenIndex];
+            //await _networkCheck(_fromChain);
             // PoS Bridging the Token and update JobData on Moralis DB
             [_status, _txHash] = await _bridgingPoS(_fromTokenAddress, _fromChain, _toChain, _swapAmount, _status);
             job.set("txHash", _txHash);
             job.set("status", _status);
             await job.save();
             break;
-          case "posbridging":
+          case "wait to confirm PoS-Bridingprocess":
             // Check for the right network in Metamask
-            await _networkCheck(_fromChain);
+            //await _networkCheck(_fromChain);
             // wait until the PoS Bridging is confirmed on Polygon and update JobData on Moralis DB, FromTokenAddress for the Swap on Polygon has to change from the original FromToken on Eth to the corresponding from Token on Polygon
-            _status = await _checkPoSCompleted(_txHash, _status);
+            //_status = await _checkPoSCompleted(_userAddress, _fromTokenAddress, _swapAmount, "0xb5505a6d998549090530911180f38aC5130101c6");
+            _status = await _checkPoSCompleted_1(_txHash, _status);
             job.set("status", _status);
-            job.set("fromTokenAddress", _fromTokenAddressOnPolygon);
+            job.set("newFromTokenAddress", _fromTokenAddressOnPolygon);
             await job.save();
             _fromTokenAddress = _fromTokenAddressOnPolygon;
             break;
-          case "posbridgingcompleted":
+          case "PoS-Bridgingprocess completed":
             // Check or the right network in Metamask
-            await _networkCheck(_toChain);
+            //await _networkCheck(_toChain);
             // if the new FromToken on Polygon is set the actual Swap on Polygon can be done and update JobData on Moralis DB
-            [_status, _swapAmount, _txHash] = await _doSwap(_fromTokenAddress, _toTokenAddress, _swapAmount, _toChain, _slippage, _status);
+            [_status, _swapAmount, _txHash] = [`Tokens swapped on ${_toChain}`, "1", "1"]//await _doSwap(_fromTokenAddress, _toTokenAddress, _swapAmount, _toChain, _slippage, _status);
             job.set("txHash", _txHash);
             job.set("status", _status);
             job.set("amount", _swapAmount);
             await job.save();
             break;
-          case `swapped${_toChain}`:
+          case `Tokens swapped on ${_toChain}`:
             // Delete the Job after swapping
             await _deleteJobById(_jobId);
             break;
         }
       }
       // Check if FromToken is MaticToken on ETH -> can directly be bridged with Plasmabridge
-      else if (_fromTokenAddress === "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0") {
+      else if (_fromTokenAddress === "0x499d11e0b6eac7c0593d8fb292dcbbf815fb29ae" /*"0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0"*/) {
+        console.log("Hallo von Plasma XSwap");
+        const _fromTokenAddressOnPolygon = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
         switch(_status) {
-          case "new":
-            // Check or the right network in Metamask
-            await _networkCheck(_fromChain);
-            const _fromTokenAddressOnPolygon = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+          case "new XSwap":
+            // Check for the right network in Metamask
+            //await _networkCheck(_fromChain);
             // bridging Matic Token from ETH to Polygon and update JobData on Moralis DB
             [_status, _txHash] = await _bridgingMatic(_fromChain, _toChain, _swapAmount, _status);
             job.set("txHash", _txHash);
             job.set("status", _status);
             await job.save();
             break;
-          case "plasmabridging":
-            // Check or the right network in Metamask
-            await _networkCheck(_fromChain);
+          case "wait to confirm Plasma-Bridgingprocess":
+            // Check for the right network in Metamask
+            //await _networkCheck(_fromChain);
             // wait until the Plasma Bridging is confirmed on Polygon and update JobData on Moralis DB, FromTokenAddress for the Swap on Polygon has to change from the original FromToken on Eth to the corresponding FromToken n Polygon
             _status = await _checkMaticCompleted(_txHash, _status);
             job.set("status", _status);
-            job.set("fromTokenAddress", _fromTokenAddressOnPolygon);
+            job.set("newFromTokenAddress", _fromTokenAddressOnPolygon);
             await job.save();
-            _fromTokenAddress = _fromTokenAddressOnPolygon;
+            //_fromTokenAddress = _fromTokenAddressOnPolygon;
             break;
-          case "plasmabridgingcompleted":
-            // Check or the right network in Metamask
-            await _networkCheck(_toChain);
+          case "Plasma-Bridgingprocess completed":
+            // Check for the right network in Metamask
+            //await _networkCheck(_toChain);
             // if the new FromToken on Polygon is set the actual Swap on Polygon can be done and update JobData on Moralis DB
-            [_status, _swapAmount, _txHash] = await _doSwap(_fromTokenAddress, _toTokenAddress, _swapAmount, _toChain, _slippage, _status);
+            [_status, _swapAmount, _txHash] = [`Tokens swapped on ${_toChain}`, "1", "1"] //await _doSwap(_newFromTokenAddress, _toTokenAddress, _swapAmount, _toChain, _slippage, _status);
             job.set("txHash", _txHash);
             job.set("status", _status);
             job.set("amount", _swapAmount);
             await job.save();
             break;
-          case`swapped${_toChain}`:
+          case`Tokens swapped on ${_toChain}`:
             // Delete the Job after swapping
             await _deleteJobById(_jobId);
             break;
@@ -392,7 +404,7 @@ module.exports = {
       // else if the FromToken cannot directly be bridged it will first be swapped to Eth on ETH than bridged with PoS Bridge to Polygonchain and than again be swapped to the final Token on Eth
       else {
         switch(_status) {
-          case "new":
+          case "new XSwap":
             // Check or the right network in Metamask
             await _networkCheck(_fromChain);
             const _fromTokenAddressOnPolygon = "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619";
@@ -403,7 +415,7 @@ module.exports = {
             job.set("amount", _swapAmount);
             await job.save();
             break;
-          case `swapped${_fromChain}`:
+          case `Tokens swapped on ${_fromChain}`:
             // Check or the right network in Metamask
             await _networkCheck(_fromChain);
             // PoS Bridging the Token and update JobData on Moralis DB
@@ -412,17 +424,17 @@ module.exports = {
             job.set("status", _status);
             await job.save();
             break;
-          case "posbridging":
+          case "wait to confirm PoS-Bridingprocess":
             // Check or the right network in Metamask
             await _networkCheck(_fromChain);
             // wait until the PoS Bridging is confirmed on Polygon and update JobData on Moralis DB, FromTokenAddress for the Swap on Polygon has to change from the original FromToken on Eth to the corresponding from Token on Polygon
-            _status = await _checkPoSCompleted(_txHash, _status);
+            _status = await _checkPoSCompleted_1(_txHash, _status);
             job.set("status", _status);
             job.set("fromTokenAddress", _fromTokenAddressOnPolygon);
             await job.save();
             _fromTokenAddress = _fromTokenAddressOnPolygon;
             break;
-          case "posbridgingcompleted":
+          case "PoS-Bridgingprocess completed":
             // Check or the right network in Metamask
             await _networkCheck(_toChain);
             // if the new FromToken on Polygon is set the actual Swap on Polygon can be done and update JobData on Moralis DB
@@ -432,102 +444,113 @@ module.exports = {
             job.set("amount", _swapAmount);
             await job.save();
             break;
-          case `swapped${_toChain}`:
+          case `Tokens swapped on ${_toChain}`:
             // Delete the Job after swapping
             await _deleteJobById(_jobId);
+            break;
         }
       }
     }
      // Swap from Polygon to ETH
     else if (_fromChain === 137 && _toChain === 1) {
         // Check if FromToken can directly be bridged with the PoSBridge
-        if (mappedPoSTokensPolygon.includes(_fromTokenAddress)) {
+        if (_fromTokenAddress === "0xa6fa4fb5f76172d178d61b04b0ecd319c5d1c0aa" /*mappedPoSTokensPolygon.includes(_fromTokenAddress)*/) {
+          const _fromTokenIndex = mappedPoSTokensPolygon.indexOf(_fromTokenAddress);
+          const _fromTokenAddressOnEth = mappedPoSTokensEth[_fromTokenIndex];
+          console.log("Hallo PoS Polygon to Eth")
           switch(_status) {
-            case "new":
+            case "new XSwap":
               // Check for the right network in Metamask
-              await _networkCheck(_fromChain);
-              const _fromTokenIndex = mappedPoSTokensPolygon.indexOf(_fromTokenAddress);
-              const _fromTokenAddressOnEth = mappedPoSTokensEth[_fromTokenIndex];
+              //await _networkCheck(_fromChain);
               // PoS Bridging the Token and update JobData on Moralis DB
               [_status, _txHash] = await _bridgingPoS(_fromTokenAddress, _fromChain, _toChain, _swapAmount, _status);
               job.set("txHash", _txHash);
               job.set("status", _status);
               await job.save();
-              break;
-            case "posbridging":
+              //break;
+            case "wait to confirm PoS-Bridingprocess":
               // Check for the right network in Metamask
-              await _networkCheck(_fromChain);
+              //await _networkCheck(_fromChain);
               // Check for confirmed ERC20 burning on Polygon and update JobData on Moralis DB
               _status = await _checkForInclusion(_txHash, _status);
               job.set("status", _status);
               await job.save();
-              break;
+              //break;
             case "erc20PolygonToEthCompleted":
               // Check for the right network in Metamask
-              await _networkCheck(_toChain);
+              //await _networkCheck(_toChain);
               // Calling function ERC20Exit on ETH and update JobData on Moralis DB
               _status = await _erc20Exit(_fromChain, _toChain, _txHash, _status);
               job.set("status", _status);
               job.set("fromTokenAddress", _fromTokenAddressOnEth);
               await job.save();
               _fromTokenAddress = _fromTokenAddressOnEth;
-              break;
+              //break;
             case "erc20Exit":
               // Check or the right network in Metamask
-              await _networkCheck(_toChain);
+              //await _networkCheck(_toChain);
               // if the new FromToken on ETH is set the actual Swap on ETH can be done and update JobData on Moralis DB
-              [_status, _swapAmount, _txHash] = await _doSwap(_fromTokenAddress, _toTokenAddress, _swapAmount, _toChain, _slippage, _status);
+              //[_status, _swapAmount, _txHash] = await _doSwap(_fromTokenAddress, _toTokenAddress, _swapAmount, _toChain, _slippage, _status);
               job.set("txHash", _txHash);
               job.set("status", _status);
               job.set("amount", _swapAmount);
               await job.save();
-              break;
-          case `swapped${_toChain}`:
+              //break;
+          case `Tokens swapped on ${_toChain}`:
               // Delete the Job after swapping
               await _deleteJobById(_jobId);
           }
         }
-        // if FromToken is Matic
-        else if (_fromTokenAddress === "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") {
+        // if FromToken is Matic it can directly be bridged with PlasmaBridge
+        else if (_fromTokenAddress === "0x0000000000000000000000000000000000001001" /*"0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"*/) {
+          const _fromTokenAddressOnEth = "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0";
+          console.log("Hallo Plasmabrdiging from Polygon to ETH");
           switch(_status) {
-            case "new":
+            case "new XSwap":
               // Check for the right network in Metamask
-            	await _networkCheck(_fromChain);
-              const _fromTokenAddressOnEth = "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0";
+            	//await _networkCheck(_fromChain);
               // Start bridging Matic and update JobData on Moralis DB
               [_status, _txHash] = await _bridgingMatic(_fromChain, _toChain, _swapAmount, _status);
+              console.log(_txHash);
               job.set("txHash", _txHash);
               job.set("status", _status);
               await job.save();
-              break;
+              //break;
             case "plasmabridging":
               // Check for the right network in Metamask
-            	await _networkCheck(_fromChain);
+            	//await _networkCheck(_fromChain);
               // Check for Checkpointinclusion for burned Token on Mainchain
               _status = await _checkForInclusion(_txHash, _status);
               job.set("status", _status);
               await job.save();
-              break;
+              //break;
             case "erc20PolygonToEthCompleted":
               // Check for the right network in Metamask
-            	await _networkCheck(_toChain);
+            	//await _networkCheck(_toChain);
+              _status = await _maticWithdraw(_txHash, _status)
+              job.set("status", _status);
+              await job.save();
+              break;
+            case "challenge period":
+              // Check for the right network in Metamask
+            	//await _networkCheck(_toChain);
               _status = await _erc20Exit(_fromChain, _toChain, _txHash, _status);
               job.set("status", _status);
               job.set("fromTokenAddress", _fromTokenAddressOnEth);
               await job.save();
               _fromTokenAddress = _fromTokenAddressOnEth;
-              break;
+              //break;
             case "erc20Exit":
               // Check or the right network in Metamask
-              await _networkCheck(_toChain);
+              //await _networkCheck(_toChain);
               // if the new FromToken on ETH is set the actual Swap on ETH can be done and update JobData on Moralis DB
               [_status, _swapAmount, _txHash] = await _doSwap(_fromTokenAddress, _toTokenAddress, _swapAmount, _toChain, _slippage, _status);
               job.set("txHash", _txHash);
               job.set("status", _status);
               job.set("amount", _swapAmount);
               await job.save();
-              break;
-          case `swapped${_toChain}`:
+              //break;
+          case `Tokens swapped on ${_toChain}`:
               // Delete the Job after swapping
               await _deleteJobById(_jobId);
           } 
@@ -535,7 +558,7 @@ module.exports = {
         // else if the FromToken cannot directly be bridged it will first be swapped to WEth on Polygon than bridged with PoS Bridge to ETH and than again be swapped to the final Token on Eth
         else {
           switch(_status) {
-            case "new":
+            case "new XSwap":
               // Check or the right network in Metamask
               await _networkCheck(_fromChain);
               const _fromTokenAddressOnEth = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
@@ -546,7 +569,7 @@ module.exports = {
               job.set("amount", _swapAmount);
               await job.save();
               break;
-            case `swapped${_fromChain}`:
+            case `Tokens swapped on ${_fromChain}`:
               // Check or the right network in Metamask
               await _networkCheck(_fromChain);
               // PoS Bridging the Token and update JobData on Moralis DB
@@ -555,7 +578,7 @@ module.exports = {
               job.set("status", _status);
               await job.save();
               break;
-            case "posbridging":
+            case "wait to confirm PoS-Bridingprocess":
               // Check or the right network in Metamask
               await _networkCheck(_fromChain);
               // wait until the PoS Bridging is confirmed on Polygon and update JobData on Moralis DB, FromTokenAddress for the Swap on Polygon has to change from the original FromToken on Eth to the corresponding from Token on Polygon
@@ -583,7 +606,7 @@ module.exports = {
                   job.set("amount", _swapAmount);
                   await job.save();
                   break;
-              case `swapped${_toChain}`:
+              case `Tokens swapped on ${_toChain}`:
                   // Delete the Job after swapping
                   await _deleteJobById(_jobId);
           }
@@ -604,7 +627,7 @@ module.exports = {
     job.set("fromChain", _fromChain);
     job.set("toChain", _toChain);
     job.set("txHash", "");
-    job.set("status", "new");
+    job.set("status", "new XSwap");
     job.set("slippage", _slippage);
     job.set("fromTokenSymbol", _fromTokenSymbol);
     job.set("toTokenSymbol", _toTokenSymbol);
@@ -651,7 +674,7 @@ async function _doSwap(_fromTokenAddress, _toTokenAddress, _swapAmount, _chain, 
     const swap = await response.json();
     const send = await window.web3.eth.sendTransaction(swap.tx);
   
-    return [`swapped${_chain}`, swap["toTokenAmount"], send.transactionHash];
+    return [`Tokens swapped on ${_chain}`, swap["toTokenAmount"], send.transactionHash];
   } catch (error) {
     console.log(error);
     return [_status, ""];
@@ -686,17 +709,16 @@ async function _bridgingPoS(_fromTokenAddress, _fromChain, _toChain, _swapAmount
     const _userAddress = user.attributes.ethAddress;
 
     const maticPos = new MaticPOSClient({
-      network: "mainnet",
-      version: "v1",
+      network: "testnet",//"mainnet",
+      version: "mumbai",//"v1",
       parentProvider: window.web3,
-      maticProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet",
+      maticProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mumbai", //"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet",
     });
 
     const maticPosEthBack = new MaticPOSClient({
-      network: "mainnet",
-      version: "v1",
-      parentProvider:
-        "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/eth/mainnet",
+      network: "testnet", //"mainnet",
+      version: "mumbai", //"v1",
+      parentProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/eth/goerli", //"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/eth/mainnet",
       maticProvider: window.web3,
     });
 
@@ -717,11 +739,12 @@ async function _bridgingPoS(_fromTokenAddress, _fromChain, _toChain, _swapAmount
     }
     //bridging from Polygon to ETH
     else if (_fromChain === 137 && _toChain === 1) {
+        console.log("Hallo bridging PoS from Polygon to Eth")
         //Deposit any PoS Token from Polygon to Ether
         txHash = await maticPosEthBack.burnERC20(_fromTokenAddress, _swapAmount, { from: _userAddress });
     }
 
-    return ["posbridging", txHash.transactionHash]; 
+    return ["wait to confirm PoS-Bridingprocess", txHash.transactionHash]; 
   } catch (error) {
     console.log(error);
     return [_status, ""];
@@ -738,27 +761,93 @@ async function _getJobById(_jobId) {
   }
 }
 
-async function _checkPoSCompleted(_txHash, _status) {
+async function _checkPoSCompleted_1(_txHash, _status) {
   try {
     let deposit = false;
-    while (!deposit) {
+    //while (!deposit) {
     deposit = await _depositCompletedPoS(_txHash);
-    }
-    return "posbridgingcompleted";
+    console.log(deposit);
+    //}
+    return deposit === true ? "PoS-Bridgingprocess completed" : `${_status}`;
   } catch (error) {
     console.log(error);
     return _status;
   }
-  
+}
+
+async function _checkPoSCompleted(userAccount, rootToken, depositAmount, childChainManagerProxy) {
+  const ws = new WebSocket("wss://ws-mumbai.matic.today/");
+
+  return new Promise((resolve, reject) => {
+    ws.onopen = function () {
+      ws.send(
+        `{"id": 1, "method": "eth_subscribe", "params": ["newDeposits", {"Contract": ${childChainManagerProxy}}]}`
+      );
+
+      ws.onmessage = function (msg) {
+        const parsedMsg = msg;//JSON.parse(msg.data).result;
+        console.log(parsedMsg);
+        //if (
+        //  parsedMsg &&
+        //  parsedMsg.params &&
+        //  parsedMsg.params.result &&
+        //  parsedMsg.params.result.Data
+        //) {
+          console.log("checking");
+          const fullData = parsedMsg.params.result.Data;
+          const { 0: syncType, 1: syncData } = Web3.eth.abi.decodeParameters(
+            ["bytes32", "bytes"],
+            fullData
+          );
+
+          // check if sync is of deposit type (keccak256("DEPOSIT"))
+          const depositType =
+            "0x87a7811f4bfedea3d341ad165680ae306b01aaeacc205d227629cf157dd9f821";
+          if (syncType.toLowerCase() === depositType.toLowerCase()) {
+            const {
+              0: userAddress,
+              1: rootTokenAddress,
+              2: depositData,
+            } = Web3.eth.abi.decodeParameters(
+              ["address", "address", "bytes"],
+              syncData
+            );
+
+            // depositData can be further decoded to get amount, tokenId etc. based on token type
+            // For ERC20 tokens
+            const { 0: amount } = Web3.eth.abi.decodeParameters(
+              ["uint256"],
+              depositData
+            );
+            if (
+              userAddress.toLowerCase() === userAccount.toLowerCase() &&
+              rootToken.toLowerCase() === rootTokenAddress.toLowerCase() &&
+              depositAmount === amount
+            ) {
+              resolve(true);
+            }
+          //}
+        }
+      };
+
+      //ws.on("error", () => {
+      //  reject(false);
+      //});
+
+      //ws.on("close", () => {
+      //  reject(false);
+      //});
+    };
+  });
 }
 
 async function _depositCompletedPoS(txHash) {
   // For mainnet, use Ethereum RPC
-  const provider = new window.web3.providers.HttpProvider("https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/eth/mainnet");
+  const provider = new window.web3.providers.HttpProvider("https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/eth/goerli" /*"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/eth/mainnet"*/);
   const web3 = new Web3(provider);
 
   // For mainnet, use the matic mainnet RPC: <Sign up for a dedicated free RPC URL at https://rpc.maticvigil.com/ or other hosted node providers.>
-  const child_provider = new window.web3.providers.HttpProvider("https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet");
+  const child_provider = new window.web3.providers.HttpProvider("https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mumbai"/*"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet"*/);
 
   const child_web3 = new Web3(child_provider);
 
@@ -794,32 +883,33 @@ async function _bridgingMatic(_fromChain, _toChain, _swapAmount, _status) {
     const _userAddress = user.attributes.ethAddress;
 
     const maticPlasma = new Matic({
-      network: "mainnet",
-      version: "v1",
+      network: "testnet",//"mainnet",
+      version: "mumbai",//"v1",
       parentProvider: window.web3,
-      maticProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet",
+      maticProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mumbai", //"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet",
     });
 
     const maticPlasmaBack = new Matic({
-      network: "mainnet",
-      version: "v1",
-      parentProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/eth/mainnet",
+      network: "testnet", //"mainnet",
+      version: "mumbai", //"v1",
+      parentProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/eth/goerli", //"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/eth/mainnet",
       maticProvider: window.web3,
     });
 
     let txHash;
     if(_fromChain === 1 && _toChain === 137) {
       //Approve Polygon to spend the ERC20 MaticToken
-      await maticPlasma.approveERC20TokensForDeposit("0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0", _swapAmount, { from: _userAddress });
+      await maticPlasma.approveERC20TokensForDeposit("0x499d11E0b6eAC7c0593d8Fb292DCBbF815Fb29Ae" /*"0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0"*/, _swapAmount, { from: _userAddress });
       //Deposit ERC20 MaticToken
-      txHash = await maticPlasma.depositERC20ForUser("0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0", _userAddress, _swapAmount, { from: _userAddress });
+      txHash = await maticPlasma.depositERC20ForUser("0x499d11E0b6eAC7c0593d8Fb292DCBbF815Fb29Ae" /*"0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0"*/, _userAddress, _swapAmount, { from: _userAddress });
     }
 
     else if (_fromChain === 137 && _toChain === 1) {
+      console.log("Hallo _brdiging Matic");
       txHash = await maticPlasmaBack.startWithdraw("0x0000000000000000000000000000000000001010", _swapAmount, {from: _userAddress});
     }
     
-    return ["plasmabridging", txHash.transactionHash];
+    return ["wait to confirm Plasma-Bridgingprocess", txHash.transactionHash];
   } catch (error) {
     console.log(error);
     return [_status, ""];
@@ -828,11 +918,13 @@ async function _bridgingMatic(_fromChain, _toChain, _swapAmount, _status) {
 
 async function _checkMaticCompleted(_txHash, _status) {
   try {
+    console.log("Hallo _check Matic");
     let deposit;
-    while (!deposit) {
+    //while (!deposit) {
       deposit = await _depositCompletedMatic(_txHash);
-    }
-    return "plasmabridgingcompleted";
+      console.log(deposit);
+    //}
+    return deposit === true ? "Plasma-Bridgingprocess completed" : `${_status}`;
   } catch (error) {
     console.log(error);
     return _status;
@@ -841,11 +933,11 @@ async function _checkMaticCompleted(_txHash, _status) {
 
 async function _depositCompletedMatic(txHash) {
   // For mainnet, use Ethereum RPC
-  const provider = new window.web3.providers.HttpProvider("https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/eth/mainnet");
+  const provider = new window.web3.providers.HttpProvider("https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/eth/goerli"/*"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/eth/mainnet"*/);
   const web3 = new Web3(provider);
 
   // For mainnet, use the matic mainnet RPC: <Sign up for a dedicated free RPC URL at https://rpc.maticvigil.com/ or other hosted node providers.>
-  const child_provider = new window.web3.providers.HttpProvider("https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet");
+  const child_provider = new window.web3.providers.HttpProvider("https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mumbai"/*"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet"*/);
 
   const child_web3 = new Web3(child_provider);
 
@@ -877,7 +969,8 @@ async function _depositCompletedMatic(txHash) {
 
 async function _checkForInclusion(_txHash, _status) {
   try {
-    await _checkInclusion(_txHash, "0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287");
+    console.log("Hallo _checkForInclusion");
+    await _checkInclusion(_txHash, "0x2890ba17efe978480615e330ecb65333b880928e" /*"0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287"*/);
     return "erc20PolygonToEthCompleted";
   } catch (error) {
     console.log(error);
@@ -887,14 +980,12 @@ async function _checkForInclusion(_txHash, _status) {
 
 async function _checkInclusion(txHash, rootChainAddress) {
   // For mainnet, use the matic mainnet RPC: <Sign up for a dedicated free RPC URL at https://rpc.maticvigil.com/ or other hosted node providers.>
-  const child_provider = new window.web3.providers.HttpProvider(
-    "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet");
+  const child_provider = new window.web3.providers.HttpProvider("https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mumbai" /*"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet"*/);
 
   const child_web3 = new Web3(child_provider);
 
   // For mainnet, use Ethereum RPC
-  const provider = new window.web3.providers.WebsocketProvider(
-    "wss://mainnet.infura.io/ws/v3/134eb24f9b9d410baa2acac76d2a7be3");
+  const provider = new window.web3.providers.WebsocketProvider("wss://goerli.infura.io/ws/v3/134eb24f9b9d410baa2acac76d2a7be3"/*"wss://mainnet.infura.io/ws/v3/134eb24f9b9d410baa2acac76d2a7be3"*/);
   const web3 = new Web3(provider);
 
   let txDetails = await child_web3.eth.getTransactionReceipt(txHash);
@@ -931,22 +1022,22 @@ async function _erc20Exit(_fromChain, _toChain, _txHash, _status) {
     const user = await moralis.User.current();
     const _userAddress = user.attributes.ethAddress;
     const maticPos = new MaticPOSClient({
-      network: "mainnet", 
-      version: "v1",
+      network: "testnet",//"mainnet", 
+      version: "mumbai",//"v1",
       parentProvider: window.web3,
-      maticProvider:
-        "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet",
+      maticProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mumbai", //"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet",
     });
     const maticPlasma = new Matic({
-      network: "mainnet",
-      version: "v1",
+      network: "testnet",//"mainnet",
+      version: "mumbai",//"v1",
       parentProvider: window.web3,
-      maticProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet",
+      maticProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mumbai", //"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet",
     });
     if(_fromChain === 1 && _toChain === 137) {
       await maticPos.exitERC20(_txHash, { from: _userAddress });
     }
     else if (_fromChain === 137 && _toChain === 1) {
+      console.log("Hallo _erc20Exit");
       await maticPlasma.processExits("0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0", {from: _userAddress});
     }    
     return "erc20Exit";
@@ -954,4 +1045,33 @@ async function _erc20Exit(_fromChain, _toChain, _txHash, _status) {
     console.log(error);
     return _status;
   }
+}
+
+async function _maticWithdraw(_txHash, _status) {
+  try {
+    const user = await moralis.User.current();
+    const _userAddress = user.attributes.ethAddress;
+
+    console.log("Hallo _maticWithdraw");
+
+    const matic = new Matic({
+      network: "testnet", //"mainnet",
+      version: "mumbai", //"v1",
+      parentProvider: window.web3,
+      maticProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mumbai", //"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet",
+    });
+
+    const maticPos = new MaticPOSClient({
+      network: "testnet",//"mainnet",
+      version: "mumbai",//"v1",
+      parentProvider: window.web3,
+      maticProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mumbai", //"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet",
+    });
+
+    await matic.withdraw(_txHash, {from: _userAddress});
+    return "challenge period"
+  } catch (error) {
+    console.log(error);
+    return _status;
+  }  
 }
