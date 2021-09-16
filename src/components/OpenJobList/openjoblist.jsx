@@ -23,17 +23,6 @@ const OpenJobList = () => {
     let openJobs;
     openJobs = await getMyJobs();
     setOpenJobData(openJobs);
-    /*let openJobsToDo = [];
-    if(openJobs.length !== 0) {
-      for(var i = 0; i < openJobs.length; i++) {
-        if(openJobs[i].attributes.status === "posbridging" || openJobs[i].attributes.status === "plasmabridging") {
-          console.log(openJobs[i].id);
-          //const promise = await swapTokens(openJobs[i].id);
-          //openJobsToDo.push(promise);
-        }
-      }
-      //await Promise.all(openJobsToDo);
-    }*/
   };
 
   const init = async function () {

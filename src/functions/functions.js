@@ -467,16 +467,16 @@ module.exports = {
               job.set("txHash", _txHash);
               job.set("status", _status);
               await job.save();
-              //break;
-            case "wait to confirm PoS-Bridingprocess":
+              break;
+            case "wait for Checkpoint":
               // Check for the right network in Metamask
               //await _networkCheck(_fromChain);
               // Check for confirmed ERC20 burning on Polygon and update JobData on Moralis DB
               _status = await _checkForInclusion(_txHash, _status);
               job.set("status", _status);
               await job.save();
-              //break;
-            case "erc20PolygonToEthCompleted":
+              break;
+            case "Bridgingprocess checkpointed":
               // Check for the right network in Metamask
               //await _networkCheck(_toChain);
               // Calling function ERC20Exit on ETH and update JobData on Moralis DB
@@ -485,17 +485,18 @@ module.exports = {
               job.set("fromTokenAddress", _fromTokenAddressOnEth);
               await job.save();
               _fromTokenAddress = _fromTokenAddressOnEth;
-              //break;
+              break;
             case "erc20Exit":
               // Check or the right network in Metamask
               //await _networkCheck(_toChain);
               // if the new FromToken on ETH is set the actual Swap on ETH can be done and update JobData on Moralis DB
               //[_status, _swapAmount, _txHash] = await _doSwap(_fromTokenAddress, _toTokenAddress, _swapAmount, _toChain, _slippage, _status);
+              [_status, _swapAmount, _txHash] = [`Tokens swapped on ${_toChain}`, "1", "1"]
               job.set("txHash", _txHash);
               job.set("status", _status);
               job.set("amount", _swapAmount);
               await job.save();
-              //break;
+              break;
           case `Tokens swapped on ${_toChain}`:
               // Delete the Job after swapping
               await _deleteJobById(_jobId);
@@ -647,6 +648,8 @@ module.exports = {
   deleteJobById: async function (_jobId) {
     const params = { id: _jobId };
     let job = await moralis.Cloud.run("getJobsById", params);
+    //job.set("status", "finished");
+    //await job.save();
     await job.destroy();
   },
 
@@ -693,6 +696,8 @@ async function _networkCheck(_networkId) {
 async function _deleteJobById(_jobId) {
   const params = { id: _jobId };
   let job = await moralis.Cloud.run("getJobsById", params);
+  //job.set("status", "finished");
+  //await job.save();
   await job.destroy();
 }
 
@@ -736,15 +741,18 @@ async function _bridgingPoS(_fromTokenAddress, _fromChain, _toChain, _swapAmount
         //bridging the ERC20 fromToken
         txHash = await maticPos.depositERC20ForUser(_fromTokenAddress, _userAddress, _swapAmount, { from: _userAddress });
       }
+      return ["wait to confirm PoS-Bridingprocess", txHash.transactionHash];
     }
     //bridging from Polygon to ETH
     else if (_fromChain === 137 && _toChain === 1) {
         console.log("Hallo bridging PoS from Polygon to Eth")
         //Deposit any PoS Token from Polygon to Ether
         txHash = await maticPosEthBack.burnERC20(_fromTokenAddress, _swapAmount, { from: _userAddress });
+
+        return ["wait for Checkpoint", txHash.transactionHash];
     }
 
-    return ["wait to confirm PoS-Bridingprocess", txHash.transactionHash]; 
+     
   } catch (error) {
     console.log(error);
     return [_status, ""];
@@ -971,7 +979,7 @@ async function _checkForInclusion(_txHash, _status) {
   try {
     console.log("Hallo _checkForInclusion");
     await _checkInclusion(_txHash, "0x2890ba17efe978480615e330ecb65333b880928e" /*"0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287"*/);
-    return "erc20PolygonToEthCompleted";
+    return "Bridgingprocess checkpointed";
   } catch (error) {
     console.log(error);
     return _status;
@@ -1033,13 +1041,13 @@ async function _erc20Exit(_fromChain, _toChain, _txHash, _status) {
       parentProvider: window.web3,
       maticProvider: "https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mumbai", //"https://speedy-nodes-nyc.moralis.io/cff6f789838e10c4008b1baa/polygon/mainnet",
     });
-    if(_fromChain === 1 && _toChain === 137) {
+    //if(_fromChain === 1 && _toChain === 137) {
       await maticPos.exitERC20(_txHash, { from: _userAddress });
-    }
-    else if (_fromChain === 137 && _toChain === 1) {
-      console.log("Hallo _erc20Exit");
-      await maticPlasma.processExits("0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0", {from: _userAddress});
-    }    
+    //}
+    //else if (_fromChain === 137 && _toChain === 1) {
+    //  console.log("Hallo _erc20Exit");
+    //  await maticPlasma.processExits("0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0", {from: _userAddress});
+    //}    
     return "erc20Exit";
   } catch (error) {
     console.log(error);

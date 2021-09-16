@@ -24,14 +24,14 @@ const OpenJob = ({ jobId, fromTokenSymbol, toTokenSymbol, status }) => {
   }
 
   const componentDidMount = async () => {
-    status === "wait to confirm PoS-Bridingprocess" || status === "wait to confirm Plasma-Bridgingprocess" && await swapTokens(jobId); 
+    status === "wait to confirm PoS-Bridingprocess" || status === "wait to confirm Plasma-Bridgingprocess" || status === "wait for Checkpoint" && await swapTokens(jobId); 
   };
 
   useEffect(() => {
     componentDidMount();
   }, []);
 
-  //if(status === "new" || status === "posbridgingcompleted" || status === "swapped1" || status === "swapped137" || status === "plasmabridgingcompleted" || status === "erc20PolygonToEthCompleted" || status === "erc20Exit" || status === "challenge period") {
+  if(status !== "wait for Checkpoint") {
     return (
       <Wrapper>
         <td> {jobId} </td>
@@ -45,21 +45,21 @@ const OpenJob = ({ jobId, fromTokenSymbol, toTokenSymbol, status }) => {
         </td>
       </Wrapper>
     )
-  //}
-  /*else {
+  }
+  else {
     return (
       <Wrapper>
-        <td> {jobId} </td>
-        <td> {`${fromTokenSymbol} -> ${toTokenSymbol}`} </td>
-        <td>
-          <div>        
-            Wait for Bridging
-            <NormalButton text={"Delete"} onClick={() => deleteJob(jobId)} />
-          </div>
-        </td>
-      </Wrapper>
+      <td> {jobId} </td>
+      <td> {`XSwap from ${fromTokenSymbol} to ${toTokenSymbol}`} </td>
+      <td> {status} </td>
+      <td>
+        <div>       
+          <NormalButton text={"Delete"} onClick={() => deleteJob(jobId)} />
+        </div>
+      </td>
+    </Wrapper>
     )
-  }*/
+  }
 };
 
 export default OpenJob;
